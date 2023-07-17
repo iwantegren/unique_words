@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
     bool verbose = false;
     bool preprocess = false;
-    bool standart_impl = false;
+    bool standard_impl = false;
     std::string input_file;
 
     // Handle input arguments
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
         }
         else if (arg == "-s")
         {
-            standart_impl = true;
+            standard_impl = true;
         }
     }
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
     // Count unique words
     int unique_words;
-    if (standart_impl)
+    if (standard_impl)
         unique_words = count_unique_words_set(input_file);
     else
         unique_words = count_unique_words(input_file);

@@ -2,7 +2,7 @@
 
 #include "../Utils.h"
 
-static void BM_count_unique_words(benchmark::State &state)
+static void BM_count_unique_words_custom(benchmark::State &state)
 {
     for (auto _ : state)
     {
@@ -10,9 +10,9 @@ static void BM_count_unique_words(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_count_unique_words);
+BENCHMARK(BM_count_unique_words_custom);
 
-static void BM_count_unique_words_set(benchmark::State &state)
+static void BM_count_unique_words_unordered_set(benchmark::State &state)
 {
     for (auto _ : state)
     {
@@ -20,6 +20,6 @@ static void BM_count_unique_words_set(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_count_unique_words_set);
+BENCHMARK(BM_count_unique_words_unordered_set);
 
 BENCHMARK_MAIN();
