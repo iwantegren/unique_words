@@ -6,6 +6,8 @@ add_executable(${PROJECT_NAME}
 main.cpp
 LetterTree.h
 LetterTree.cpp
+Utils.h
+Utils.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

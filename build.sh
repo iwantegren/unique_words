@@ -6,6 +6,3 @@ rm unique_words
 
 cmake -S ../../ -B .
 make
-
-echo "....................................."
-./unique_words words100az.txt
