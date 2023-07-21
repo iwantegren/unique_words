@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include "../Utils.h"
+#include "../src/utils/Utils.h"
 
 static void BM_count_unique_words_custom(benchmark::State &state)
 {

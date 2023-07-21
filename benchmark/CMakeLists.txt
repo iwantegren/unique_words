@@ -4,10 +4,10 @@ project(benchmark VERSION 1.0 LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} 
 benchmark.cpp
-../LetterTree.h
-../LetterTree.cpp
-../Utils.h
-../Utils.cpp
+../src/utils/LetterTree.h
+../src/utils/LetterTree.cpp
+../src/utils/Utils.h
+../src/utils/Utils.cpp
 )
 
 find_package(benchmark REQUIRED)
