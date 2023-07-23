@@ -8,6 +8,10 @@ src/utils/LetterTree.h
 src/utils/LetterTree.cpp
 src/utils/Utils.h
 src/utils/Utils.cpp
+src/concurrency/ConcurrencyDefs.h
+src/concurrency/ConcurrencyDefs.cpp
+src/concurrency/ConcurrencyUtils.h
+src/concurrency/ConcurrencyUtils.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
