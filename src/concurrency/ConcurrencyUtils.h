@@ -12,5 +12,4 @@ namespace Concurrency
     void read_words_to_queues(const std::string &filename, std::unique_ptr<RangeQueues> &range_queues);
 
     std::unique_ptr<RangeQueues> make_range_queues(unsigned int threads_num);
-
 }

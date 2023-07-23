@@ -1,6 +1,8 @@
 #include "ConcurrencyUtils.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "Sync.h"
 
 namespace Concurrency
@@ -38,14 +40,33 @@ namespace Concurrency
 
     void read_words_to_queues(const std::string &filename, std::unique_ptr<RangeQueues> &range_queues)
     {
-        char c_end = 'z' + 1;
-        for (char c = 'a'; c != c_end; ++c)
+        end_of_input = false;
+
+        std::ifstream file(filename);
+
+        if (!file.is_open())
         {
-            range_queues->at(c).q_ptr->push({c});
-            std::cout << "push " << c << "\n";
+            end_of_input = true;
+            return;
         }
-        // One thread for reading words and putting them into queues
-        // oher threads for processing
+
+        std::string line;
+        while (std::getline(file, line))
+        {
+            std::istringstream iss(line);
+            std::string word;
+            while (iss >> word)
+            {
+                auto sync_queue = range_queues->at(word[0]);
+
+                std::unique_lock<std::mutex> ul(sync_queue.m);
+                sync_queue.q_ptr->push(word);
+                ul.unlock();
+            }
+        }
+
+        file.close();
+        end_of_input = true;
     }
 
     std::unique_ptr<RangeQueues> make_range_queues(unsigned int threads_num)

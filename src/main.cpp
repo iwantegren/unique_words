@@ -14,11 +14,6 @@ struct Settings
 
 int main(int argc, char **argv)
 {
-    {
-        Concurrency::count_unique_words("");
-        return 0;
-    }
-
     Settings s;
 
     // Handle input arguments
@@ -93,8 +88,9 @@ int main(int argc, char **argv)
     }
     else
     {
-        unique_words = 100;
-        std::cout << "running concurrency...\n";
+        if (s.verbose)
+            std::cout << "Multithreaded mode...\n";
+        unique_words = Concurrency::count_unique_words(s.input_file);
     }
 
     if (unique_words == -1)
