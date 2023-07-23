@@ -6,10 +6,11 @@
 
 namespace Concurrency
 {
-    int count_unique_words_concurrent(const std::string &filename);
+    int count_unique_words(const std::string &filename);
 
     int process_word_queue(Queue &q);
-    void read_words_to_queue(const std::string &filename);
+    void read_words_to_queues(const std::string &filename, std::unique_ptr<RangeQueues> &range_queues);
 
     std::unique_ptr<RangeQueues> make_range_queues(unsigned int threads_num);
+
 }

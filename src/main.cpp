@@ -15,13 +15,7 @@ struct Settings
 int main(int argc, char **argv)
 {
     {
-        auto rq = Concurrency::make_range_queues(10);
-
-        for (const auto &pair : *rq.get())
-        {
-            // std::cout << pair.first << " - " << pair.second->front() << "\n";
-        }
-
+        Concurrency::count_unique_words("");
         return 0;
     }
 

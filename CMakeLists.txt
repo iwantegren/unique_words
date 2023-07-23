@@ -3,16 +3,14 @@ cmake_minimum_required(VERSION 3.16.3)
 project(unique_words VERSION 1.0 LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} 
-src/main.cpp
-src/utils/LetterTree.h
-src/utils/LetterTree.cpp
-src/utils/Utils.h
-src/utils/Utils.cpp
-src/concurrency/ConcurrencyDefs.h
-src/concurrency/ConcurrencyDefs.cpp
-src/concurrency/ConcurrencyUtils.h
-src/concurrency/ConcurrencyUtils.cpp
+    src/main.cpp
 )
+
+add_subdirectory(src/concurrency)
+target_link_libraries(${PROJECT_NAME} PRIVATE concurrency)
+
+add_subdirectory(src/utils)
+target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)

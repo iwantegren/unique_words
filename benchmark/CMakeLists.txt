@@ -8,6 +8,11 @@ benchmark.cpp
 ../src/utils/LetterTree.cpp
 ../src/utils/Utils.h
 ../src/utils/Utils.cpp
+../src/concurrency/ConcurrencyDefs.h
+../src/concurrency/ConcurrencyDefs.cpp
+../src/concurrency/ConcurrencyUtils.h
+../src/concurrency/ConcurrencyUtils.cpp
+../src/concurrency/Sync.h
 )
 
 find_package(benchmark REQUIRED)

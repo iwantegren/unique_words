@@ -4,22 +4,24 @@
 #include <queue>
 #include <string>
 #include <memory>
+#include <mutex>
 
 namespace Concurrency
 {
+    // Make too many threads doesn't make better performance
+    // because total weight of queue can be less than weight of one single letter
+    constexpr unsigned int MAX_THREADS = 10;
     constexpr unsigned int DEFAULT_THREADS = 6;
 
-    // One thread for reading words and putting them into queues
-    // Divide letter for queues with letter frequency weight
-    // For dividing words hash_table with {letter: link to queue}
-    // Create processign threads that do:
-    //      1. Check if queue empty
-    //      2. Take words from queue and process them
-    //      3. If queue empty check flag end
-    //      4. Return number of unique words
-
     using Queue = std::queue<std::string>;
-    using RangeQueues = std::unordered_map<char, std::shared_ptr<Queue>>;
+
+    struct SyncQueue
+    {
+        std::mutex &m;
+        std::shared_ptr<Queue> q_ptr;
+    };
+
+    using RangeQueues = std::unordered_map<char, SyncQueue>;
 
     constexpr float TOTAL_WEIGHT = 99.99;
     static const std::unordered_map<char, float>
