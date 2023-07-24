@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include "utils/Utils.h"
 #include "concurrency/ConcurrencyUtils.h"
@@ -90,7 +91,19 @@ int main(int argc, char **argv)
     {
         if (s.verbose)
             std::cout << "Multithreaded mode...\n";
-        unique_words = Concurrency::count_unique_words(s.input_file);
+
+        auto threads_available = std::thread::hardware_concurrency();
+        if (s.verbose)
+            std::cout << "Available " << threads_available << " threads\n";
+
+        auto threads_num = Concurrency::DEFAULT_THREADS;
+        if (Concurrency::MIN_THREADS <= threads_available && threads_available <= Concurrency::MAX_THREADS)
+            threads_num = threads_available;
+
+        if (s.verbose)
+            std::cout << "Running with " << threads_num << " threads\n";
+
+        unique_words = Concurrency::count_unique_words(s.input_file, threads_num);
     }
 
     if (unique_words == -1)

@@ -3,42 +3,75 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <future>
+#include <functional>
+#include <unordered_set>
+#include <chrono>
+#include <thread>
+
 #include "Sync.h"
 
 namespace Concurrency
 {
-    int count_unique_words(const std::string &filename)
+    int count_unique_words(const std::string &filename, unsigned int threads_num)
     {
-        auto range_queues = Concurrency::make_range_queues(DEFAULT_THREADS);
-        read_words_to_queues(filename, range_queues);
+        const auto processing_threads_num = threads_num - 1;
+        auto range_queues = Concurrency::make_range_queues(processing_threads_num);
 
-        for (auto &pair : *range_queues.get())
+        end_of_input = false;
+        auto input_thread = std::async(std::launch::async, read_words, std::ref(filename), std::ref(range_queues));
+
+        std::future<int> processing_threads[processing_threads_num];
+        for (auto i = 0; i < processing_threads_num; ++i)
         {
-            std::cout << pair.first << " - queue: [";
-
-            Queue *q = pair.second.q_ptr.get();
-            while (!q->empty())
-            {
-                std::cout << q->front() << ", ";
-                q->pop();
-            }
-            std::cout << "]\n";
+            processing_threads[i] = std::async(std::launch::async, process_words, std::ref(q_mutexes[i]), q_ptrs[i].lock());
         }
 
-        return -1;
+        input_thread.wait();
+        if (input_thread.get() == false)
+        {
+            // Something wrong with input
+            return -1;
+        }
+
+        int count = 0;
+        for (auto &f : processing_threads)
+        {
+            f.wait();
+            count += f.get();
+        }
+
+        return count;
     }
 
-    int process_word_queue(SyncQueue &sync)
+    int process_words(std::mutex &m, std::shared_ptr<Queue> q_ptr)
     {
-        // Create processign threads that do:
-        //      1. Check if queue empty
-        //      2. Take words from queue and process them
-        //      3. If queue empty check flag end
-        //      4. Return number of unique words
-        return -1;
+        int count = 0;
+        std::unordered_set<std::string> unique_words;
+
+        std::unique_lock<std::mutex> l(m, std::defer_lock);
+
+        while (true)
+        {
+            l.lock();
+            if (!q_ptr->empty())
+            {
+                count += unique_words.emplace(q_ptr->front()).second;
+                q_ptr->pop();
+            }
+            l.unlock();
+
+            if (end_of_input)
+            {
+                l.lock();
+                if (q_ptr->empty())
+                    return count;
+                l.unlock();
+            }
+        }
     }
 
-    void read_words_to_queues(const std::string &filename, std::unique_ptr<RangeQueues> &range_queues)
+    bool read_words(const std::string &filename, std::unique_ptr<RangeQueues> &range_queues)
     {
         end_of_input = false;
 
@@ -47,7 +80,7 @@ namespace Concurrency
         if (!file.is_open())
         {
             end_of_input = true;
-            return;
+            return false;
         }
 
         std::string line;
@@ -67,22 +100,23 @@ namespace Concurrency
 
         file.close();
         end_of_input = true;
+
+        return true;
     }
 
-    std::unique_ptr<RangeQueues> make_range_queues(unsigned int threads_num)
+    std::unique_ptr<RangeQueues> make_range_queues(unsigned int processing_threads_num)
     {
-        if (threads_num < 1)
-            threads_num = DEFAULT_THREADS;
-        else if (threads_num > MAX_THREADS)
-            threads_num = MAX_THREADS;
+        if (processing_threads_num > MAX_PROCESSING_THREADS)
+            processing_threads_num = MAX_PROCESSING_THREADS;
 
         auto range_queues = std::make_unique<RangeQueues>();
 
-        const float queue_weight_limit = TOTAL_WEIGHT / threads_num;
+        const float queue_weight_limit = TOTAL_WEIGHT / processing_threads_num;
 
         // Initial queue
         auto queue = std::make_shared<Queue>();
         unsigned int queue_idx = 0;
+        q_ptrs[queue_idx] = queue;
         float current_weight = 0;
 
         for (const auto &pair : LetterFrequency)
@@ -95,10 +129,45 @@ namespace Concurrency
                 // When weight for current queue reaches limit - create a new one
                 queue = std::make_shared<Queue>();
                 ++queue_idx;
+                q_ptrs[queue_idx] = queue;
                 current_weight -= queue_weight_limit;
             }
         }
 
         return range_queues;
+    }
+
+    void test_queue_distribution(unsigned int processing_threads_num, std::unique_ptr<RangeQueues> &range_queues)
+    {
+        if (processing_threads_num > MAX_PROCESSING_THREADS)
+            processing_threads_num = MAX_PROCESSING_THREADS;
+
+        char end = 'z' + 1;
+        for (char c = 'a'; c != end; ++c)
+        {
+            auto sync_queue = range_queues->at(c);
+            std::unique_lock<std::mutex> ul(sync_queue.m);
+            std::string s;
+            s += c;
+            sync_queue.q_ptr->push(s);
+            ul.unlock();
+        }
+
+        for (auto i = 0; i < processing_threads_num; ++i)
+        {
+            std::cout << i << " queue: [";
+
+            float count = 0;
+            auto q = q_ptrs[i].lock();
+            while (!q->empty())
+            {
+                std::cout << q->front() << ", ";
+                count += LetterFrequency.at(q->front()[0]);
+                q->pop();
+            }
+            std::cout << "] = ";
+
+            std::cout << count << "\n";
+        }
     }
 }

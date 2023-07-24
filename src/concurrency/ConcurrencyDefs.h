@@ -8,10 +8,18 @@
 
 namespace Concurrency
 {
+    constexpr unsigned int MIN_THREADS = 2;
+
     // Make too many threads doesn't make better performance
     // because total weight of queue can be less than weight of one single letter
-    constexpr unsigned int MAX_THREADS = 10;
-    constexpr unsigned int DEFAULT_THREADS = 6;
+    // and distribution becomes too uneven
+    constexpr unsigned int MAX_THREADS = 8;
+    constexpr unsigned int MAX_PROCESSING_THREADS = MAX_THREADS - 1;
+
+    // This is the optimal number of processing threads
+    // that gives pretty even disttribution of queues' weights
+    constexpr unsigned int DEFAULT_THREADS = 7;
+    constexpr unsigned int DEFAULT_PROCESSING_THREADS = DEFAULT_THREADS - 1;
 
     using Queue = std::queue<std::string>;
 
