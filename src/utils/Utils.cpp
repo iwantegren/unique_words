@@ -35,7 +35,7 @@ bool preprocess_text_file(const std::string &in_filename, const std::string &out
     return true;
 }
 
-int count_unique_words(const std::string &filename)
+int TreeUniqueWords::count()
 {
     std::ifstream file(filename);
     int count = 0;
@@ -63,7 +63,7 @@ int count_unique_words(const std::string &filename)
     return count;
 }
 
-int count_unique_words_set(const std::string &filename)
+int SetUniqueWords::count()
 {
     std::ifstream file(filename);
     int count = 0;

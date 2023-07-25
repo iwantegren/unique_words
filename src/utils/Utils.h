@@ -1,8 +1,21 @@
 #pragma once
 
-#include <string>
+#include "UniqueWordsBase.h"
 
 bool preprocess_text_file(const std::string &in_filename, const std::string &out_filename);
 
-int count_unique_words(const std::string &filename);
-int count_unique_words_set(const std::string &filename);
+class TreeUniqueWords : public UniqueWords
+{
+public:
+    TreeUniqueWords(const std::string &filename) : UniqueWords(filename){};
+
+    int count() override;
+};
+
+class SetUniqueWords : public UniqueWords
+{
+public:
+    SetUniqueWords(const std::string &filename) : UniqueWords(filename){};
+
+    int count() override;
+};

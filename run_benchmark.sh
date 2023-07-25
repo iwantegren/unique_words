@@ -8,4 +8,4 @@ cmake -S ../../benchmark -B .
 make
 
 echo "------------------------------------------------------------"
-./benchmark
+./benchmark --benchmark_time_unit=ms

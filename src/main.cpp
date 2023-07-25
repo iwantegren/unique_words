@@ -13,11 +13,24 @@ struct Settings
     std::string input_file;
 };
 
-int main(int argc, char **argv)
+std::unique_ptr<UniqueWords> make_unique_words(const Settings &s)
+{
+    if (s.no_concurrency)
+    {
+        if (s.standard_impl)
+            return std::make_unique<SetUniqueWords>(s.input_file);
+        else
+            return std::make_unique<TreeUniqueWords>(s.input_file);
+    }
+    else
+    {
+        return std::make_unique<Concurrency::UniqueWords>(s.input_file);
+    }
+}
+
+Settings handle_settings(int argc, char **argv)
 {
     Settings s;
-
-    // Handle input arguments
     for (auto i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
@@ -45,6 +58,12 @@ int main(int argc, char **argv)
             s.no_concurrency = true;
         }
     }
+    return s;
+}
+
+int main(int argc, char **argv)
+{
+    Settings s = handle_settings(argc, argv);
 
     if (s.input_file.empty())
     {
@@ -79,33 +98,9 @@ int main(int argc, char **argv)
     }
 
     // Count unique words
-    int unique_words = -1;
-    if (s.no_concurrency)
-    {
-        if (s.standard_impl)
-            unique_words = count_unique_words_set(s.input_file);
-        else
-            unique_words = count_unique_words(s.input_file);
-    }
-    else
-    {
-        if (s.verbose)
-            std::cout << "Multithreaded mode...\n";
+    std::unique_ptr<UniqueWords> uw = make_unique_words(s);
 
-        auto threads_available = std::thread::hardware_concurrency();
-        if (s.verbose)
-            std::cout << "Available " << threads_available << " threads\n";
-
-        auto threads_num = Concurrency::DEFAULT_THREADS;
-        if (Concurrency::MIN_THREADS <= threads_available && threads_available <= Concurrency::MAX_THREADS)
-            threads_num = threads_available;
-
-        if (s.verbose)
-            std::cout << "Running with " << threads_num << " threads\n";
-
-        unique_words = Concurrency::count_unique_words(s.input_file, threads_num);
-    }
-
+    int unique_words = uw->count();
     if (unique_words == -1)
     {
         std::cerr << "Failed to open file: " << s.input_file << ". Exit\n";
