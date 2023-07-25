@@ -11,9 +11,8 @@ Tool implements diiferent ways of counting unique words:
 > Disclaimer:
 > This soultion was made as test task. 
 > 
-> It wasn't properly tested and documented as it should be for a commercial product.
-> 
-> This code could possibly containg bugs and weak points.
+> It hasn't been properly covered with tests and documented as it should be for a commercial product.
+
 ## Parameters
 
 Tool can be launched with different parameters:
