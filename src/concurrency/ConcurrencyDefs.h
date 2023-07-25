@@ -8,6 +8,8 @@
 
 namespace Concurrency
 {
+    constexpr unsigned int WORD_SEGMENT = 1000'000;
+
     constexpr unsigned int MIN_THREADS = 2;
 
     // Make too many threads doesn't make better performance
@@ -22,14 +24,7 @@ namespace Concurrency
     constexpr unsigned int DEFAULT_PROCESSING_THREADS = DEFAULT_THREADS - 1;
 
     using Queue = std::queue<std::string>;
-
-    struct SyncQueue
-    {
-        std::mutex &m;
-        std::shared_ptr<Queue> q_ptr;
-    };
-
-    using RangeQueues = std::unordered_map<char, SyncQueue>;
+    using RangeQueues = std::unordered_map<char, std::shared_ptr<Queue>>;
 
     constexpr float TOTAL_WEIGHT = 99.99;
     static const std::unordered_map<char, float>
